@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdint.h>
+
+#define NTP_UNIX_OFFSET 2208988800UL
+
+int is_leap(int y) {
+    return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+}
+
+int main() {
+
+    uint32_t seconds = 0xED5D03A9;
+    uint32_t fraction = 0xFFE80537;
+
+    uint32_t unix_time = seconds - NTP_UNIX_OFFSET;
+
+    uint32_t days = unix_time / 86400;
+    uint32_t rem  = unix_time % 86400;
+
+    int hour = rem / 3600;
+    rem %= 3600;
+    int min = rem / 60;
+    int sec = rem % 60;
+
+    int year = 1970;
+
+    while (1) {
+        int dy = is_leap(year) ? 366 : 365;
+        if (days >= dy) {
+            days -= dy;
+            year++;
+        } else break;
+    }
+
+    int month = 0;
+    int mdays[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+
+    if (is_leap(year))
+        mdays[1] = 29;
+
+    while (days >= mdays[month]) {
+        days -= mdays[month];
+        month++;
+    }
+
+    int day = days + 1;
+
+    double frac = (double)fraction / 4294967296.0;
+
+    printf("Date UTC : %04d-%02d-%02d %02d:%02d:%02d.%06f\n",
+           year,
+           month + 1,
+           day,
+           hour,
+           min,
+           sec,
+           frac);
+
+    return 0;
+}
