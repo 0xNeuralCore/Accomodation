@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <time.h>
+
+#define NTP_UNIX_OFFSET 2208988800UL
+
+int main() {
+
+    // ton timestamp
+    uint32_t seconds = 0xED5D03A9;
+    uint32_t fraction = 0xFFE80537;
+
+    // conversion NTP -> Unix
+    time_t unix_time = seconds - NTP_UNIX_OFFSET;
+
+    // conversion en date UTC
+    struct tm *tm_info = gmtime(&unix_time);
+
+    // fraction en secondes
+    double frac = (double)fraction / 4294967296.0;
+
+    printf("Date UTC : %04d-%02d-%02d %02d:%02d:%02d.%06f\n",
+           tm_info->tm_year + 1900,
+           tm_info->tm_mon + 1,
+           tm_info->tm_mday,
+           tm_info->tm_hour,
+           tm_info->tm_min,
+           tm_info->tm_sec,
+           frac);
+
+    return 0;
+}
